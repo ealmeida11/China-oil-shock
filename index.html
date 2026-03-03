@@ -63,20 +63,6 @@ a:hover{text-decoration:underline}
 .chart-row.cols-3{grid-template-columns:1fr 1fr 1fr}
 .chart-box{background:#fff;border:1px solid #eee;border-radius:5px;overflow:hidden;min-height:340px}
 
-/* ===== GEOPOLITICAL TABLE ===== */
-.geo-table{font-size:12px}
-.geo-table .geo-event-header{background:#1a252f;color:#ecf0f1;text-align:center;border-left:2px solid #DC143C;font-size:11px;padding:8px 6px}
-.geo-table .geo-sub-header{background:#2c3e50;color:#bdc3c7;font-size:10px;text-transform:uppercase;letter-spacing:.5px;padding:6px 8px}
-.geo-table tbody td{padding:8px 10px;font-size:12px;text-align:center;min-width:55px}
-
-/* ===== HORMUZ BOX ===== */
-.hormuz-box{background:linear-gradient(135deg,rgba(220,20,60,.04),rgba(207,34,46,.02));border:1px solid #e74c3c;border-radius:5px;padding:20px;margin-top:20px}
-.hormuz-box h3{color:#c0392b;margin-bottom:12px;font-size:15px}
-.hormuz-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.hormuz-card{background:#fff;border:1px solid #ddd;border-radius:5px;padding:14px}
-.hormuz-card h4{color:#DC143C;font-size:13px;margin-bottom:8px}
-.hormuz-card table{width:100%;font-size:12px}
-.hormuz-card td{padding:4px 6px;border-bottom:1px solid #f0f0f0;color:#333}
 
 /* ===== REFERENCES ===== */
 .ref-section{margin-bottom:20px}
@@ -102,7 +88,6 @@ a:hover{text-decoration:underline}
 /* ===== RESPONSIVE ===== */
 @media(max-width:900px){
   .chart-row.cols-2,.chart-row.cols-3{grid-template-columns:1fr}
-  .hormuz-grid{grid-template-columns:1fr}
   .price-control{flex-direction:column;align-items:stretch}
 }
 </style>
@@ -178,7 +163,6 @@ a:hover{text-decoration:underline}
   <button class="tab-btn" onclick="openTab('growth')">Crescimento</button>
   <button class="tab-btn" onclick="openTab('trade')">Balança Comercial</button>
   <button class="tab-btn" onclick="openTab('irfull')">IRF Completo</button>
-  <button class="tab-btn" onclick="openTab('geopolitical')">Geopolítico</button>
   <button class="tab-btn" onclick="openTab('references')">Referências</button>
 </div>
 
@@ -218,102 +202,6 @@ a:hover{text-decoration:underline}
     <div class="chart-box" id="irfIP"></div>
     <div class="chart-box" id="irfTrade"></div>
     <div class="chart-box" id="irfRMB"></div>
-  </div>
-</div>
-
-<!-- TAB: GEOPOLITICAL -->
-<div class="tab-content" id="tab-geopolitical">
-  <p style="font-size:13px;color:#555;margin-bottom:12px">
-    <b>Reação de mercado</b> — variação % do Brent e do câmbio RMB/USD (offshore, CNH) após cada evento (vs véspera). Dados de fechamento diário — não varia com o simulador de cenários.
-  </p>
-  <div class="summary-box" style="margin-bottom:20px;overflow-x:auto">
-    <table class="summary-table geo-table">
-      <thead>
-        <tr>
-          <th class="st-country" rowspan="2">Ativo</th>
-          <th colspan="3" class="geo-event-header">Invasão da Ucrânia<br><small style="font-weight:400;opacity:.7">24/Fev/2022</small></th>
-          <th colspan="3" class="geo-event-header">Ataque Hamas–Israel<br><small style="font-weight:400;opacity:.7">7/Out/2023</small></th>
-          <th colspan="3" class="geo-event-header">Houthis — Mar Vermelho<br><small style="font-weight:400;opacity:.7">19/Nov/2023</small></th>
-          <th colspan="3" class="geo-event-header">Escalada Israel–Líbano<br><small style="font-weight:400;opacity:.7">23/Set/2024</small></th>
-        </tr>
-        <tr>
-          <th class="geo-sub-header">D+0</th><th class="geo-sub-header">D+7</th><th class="geo-sub-header">D+14</th>
-          <th class="geo-sub-header">D+0</th><th class="geo-sub-header">D+7</th><th class="geo-sub-header">D+14</th>
-          <th class="geo-sub-header">D+0</th><th class="geo-sub-header">D+7</th><th class="geo-sub-header">D+14</th>
-          <th class="geo-sub-header">D+0</th><th class="geo-sub-header">D+7</th><th class="geo-sub-header">D+14</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td class="st-country"><span class="st-dot" style="background:#1a5276"></span><b>Brent</b></td>
-          <td class="st-pos">+0.8%</td><td class="st-pos">+20.1%</td><td class="st-pos">+18.0%</td>
-          <td class="st-pos">+3.8%</td><td class="st-pos">+5.9%</td><td class="st-pos">+7.2%</td>
-          <td class="st-pos">+1.5%</td><td class="st-pos">+3.0%</td><td class="st-pos">+0.3%</td>
-          <td class="">-0.0%</td><td class="st-pos">+9.1%</td><td class="st-pos">+10.8%</td>
-        </tr>
-        <tr>
-          <td class="st-country"><span class="st-dot" style="background:#DC143C"></span><b>USDCNH</b></td>
-          <td class="st-pos">+0.3%</td><td class="st-pos">+0.5%</td><td class="st-pos">+0.8%</td>
-          <td class="st-neg">-0.1%</td><td class="st-pos">+0.2%</td><td class="st-pos">+0.5%</td>
-          <td class="">+0.0%</td><td class="st-neg">-0.3%</td><td class="st-neg">-0.5%</td>
-          <td class="st-neg">-0.2%</td><td class="st-neg">-0.8%</td><td class="st-neg">-1.0%</td>
-        </tr>
-        <tr>
-          <td class="st-country"><span class="st-dot" style="background:#2980b9"></span><b>Shanghai Comp.</b></td>
-          <td class="st-neg">-1.7%</td><td class="st-neg">-3.2%</td><td class="st-neg">-4.1%</td>
-          <td class="st-neg">-0.4%</td><td class="st-neg">-0.9%</td><td class="st-neg">-1.5%</td>
-          <td class="st-neg">-0.3%</td><td class="st-neg">-0.8%</td><td class="st-neg">-0.5%</td>
-          <td class="st-pos">+0.6%</td><td class="st-pos">+8.1%</td><td class="st-pos">+12.4%</td>
-        </tr>
-        <tr>
-          <td class="st-country"><span class="st-dot" style="background:#f39c12"></span><b>Iron Ore (SGX)</b></td>
-          <td class="st-neg">-3.5%</td><td class="st-neg">-8.2%</td><td class="st-neg">-5.6%</td>
-          <td class="st-pos">+1.2%</td><td class="st-pos">+2.8%</td><td class="st-pos">+4.1%</td>
-          <td class="st-neg">-0.8%</td><td class="st-neg">-2.1%</td><td class="st-neg">-3.5%</td>
-          <td class="st-pos">+2.3%</td><td class="st-pos">+10.5%</td><td class="st-pos">+15.2%</td>
-        </tr>
-        <tr>
-          <td class="st-country"><span class="st-dot" style="background:#27ae60"></span><b>China 5Y CDS</b></td>
-          <td class="st-pos">+12bp</td><td class="st-pos">+18bp</td><td class="st-pos">+15bp</td>
-          <td class="st-pos">+3bp</td><td class="st-pos">+5bp</td><td class="st-pos">+8bp</td>
-          <td class="st-pos">+2bp</td><td class="st-pos">+4bp</td><td class="st-pos">+3bp</td>
-          <td class="st-neg">-1bp</td><td class="st-neg">-3bp</td><td class="st-neg">-5bp</td>
-        </tr>
-      </tbody>
-    </table>
-    <p class="source-note">Variações % relativas à véspera de cada evento. Fontes: Bloomberg, Reuters. USDCNH = CNH offshore; valores positivos = depreciação RMB. Shanghai Comp = SSE Composite Index. Última linha: spread CDS 5 anos soberano China.</p>
-  </div>
-
-  <!-- HORMUZ SPECIAL -->
-  <div class="hormuz-box">
-    <h3>🔴 Cenário Estreito de Hormuz — Estimativas Institucionais</h3>
-    <p style="font-size:12px;color:#555;margin-bottom:14px">
-      <b>Exposição da China:</b> ~40–45% das importações de crude (~4.5–5.0 mb/d de ~11 mb/d total) transitam pelo Estreito de Hormuz.
-      Fornecedores: Arábia Saudita (~1.7), Iraque (~1.2), Omã (~0.8), EAU (~0.5), Kuwait (~0.7), Irã (~1.0–1.2 mb/d).
-    </p>
-    <div class="hormuz-grid">
-      <div class="hormuz-card">
-        <h4>Estimativas de Preço por Fonte</h4>
-        <table>
-          <tr><td><b>Brookings (2012)</b></td><td>Fechamento total, 1 mês → Brent $150–200; $250+ se prolongado</td></tr>
-          <tr><td><b>RAND Corp. (2011)</b></td><td>Bloqueio parcial → +$30–50 premium; +$50–80 com perda supply Iran</td></tr>
-          <tr><td><b>Oxford IES (2019)</b></td><td>Fechamento total, 2 semanas → Spike $150+, depois moderação</td></tr>
-          <tr><td><b>IMF (2019) WEO</b></td><td>Perda 2 mb/d → GDP global −0.5%; oil $120–140</td></tr>
-          <tr><td><b>CSIS (2023)</b></td><td>Fechamento + Iran loss (~4 mb/d) → $120–200</td></tr>
-          <tr><td><b>JP Morgan (2024)</b></td><td>Full blockade → $150+</td></tr>
-        </table>
-      </div>
-      <div class="hormuz-card">
-        <h4>Impacto Modelado na China</h4>
-        <table>
-          <tr><td><b>Zhang et al. (2019)</b></td><td>Disrupção 3 mb/d M.E. → GDP −0.7 a −1.2%; CPI +1.5 a +2.5 pp</td></tr>
-          <tr><td><b>World Bank (2022)</b></td><td>Oil $150 → GDP −0.8 a −1.0 pp</td></tr>
-          <tr><td><b>IMF (2022)</b></td><td>+$25/bbl sustentado → GDP −0.3 a −0.5 pp; CPI +0.4 a +0.7 pp</td></tr>
-          <tr><td><b>Chen & Lv (2015)</b></td><td>10% shock → IP −0.3 a −0.5% em 6 meses</td></tr>
-          <tr><td colspan="2" style="color:#888;font-size:11px;padding-top:8px"><em>Mitigantes: Teto NDRC $130, SPR (50–55 dias), SOE absorption, coal buffer 55%, crude russo/iraniano c/ desconto</em></td></tr>
-        </table>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -708,7 +596,7 @@ function openTab(name) {
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
-  const tabs = ['inflation','growth','trade','irfull','geopolitical','references'];
+  const tabs = ['inflation','growth','trade','irfull','references'];
   document.querySelectorAll('.tab-btn')[tabs.indexOf(name)]?.classList.add('active');
   if(R) setTimeout(()=>{
     if(name==='inflation') renderInflation(R);
