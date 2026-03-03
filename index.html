@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>China Oil Shock Simulator — Iran-US Scenario</title>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#fafafa;color:#333;max-width:1280px;margin:0 auto;padding:20px}
+a{color:#0969da;text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ===== HEADER ===== */
+.header{border-bottom:3px solid #DC143C;padding:10px 0 12px;margin-bottom:15px}
+.header h1{font-size:22px;color:#2c3e50}
+.header h1 span.cn{color:#DC143C;font-weight:700}
+.header .subtitle{font-size:13px;color:#666;margin-top:4px}
+
+/* ===== SIMULATOR BOX ===== */
+.simulator{background:#fff;border-left:4px solid #DC143C;padding:15px 20px;margin:15px 0;box-shadow:0 1px 3px rgba(0,0,0,.1);border-radius:0 5px 5px 0}
+.simulator-title{font-weight:700;font-size:15px;color:#2c3e50;margin-bottom:12px}
+.price-control{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.price-control label{font-weight:600;font-size:14px;color:#2c3e50;white-space:nowrap}
+.price-input{width:80px;padding:6px 8px;font-size:15px;font-weight:600;border:2px solid #bdc3c7;border-radius:5px;text-align:center;color:#2c3e50}
+.price-input:focus{border-color:#DC143C;outline:none}
+.price-unit{font-size:13px;color:#666}
+.price-slider{flex:1;min-width:200px;height:6px;-webkit-appearance:none;appearance:none;background:linear-gradient(to right,#27ae60 0%,#f39c12 50%,#e74c3c 100%);border-radius:3px;outline:none}
+.price-slider::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:#DC143C;cursor:pointer;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.shock-info{font-size:13px;padding:4px 10px;border-radius:4px;font-weight:600}
+.scenario-buttons{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.scenario-btn{padding:6px 12px;border:1px solid #ddd;border-radius:4px;background:#f8f9fa;color:#2c3e50;font-size:12px;cursor:pointer;transition:all .15s;text-align:center;line-height:1.3}
+.scenario-btn:hover{border-color:#DC143C;background:#fff5f5}
+.scenario-btn.active{border-color:#DC143C;background:rgba(220,20,60,.08);color:#DC143C;font-weight:600}
+.scenario-btn.highlight{border-color:#e74c3c;background:rgba(231,76,60,.08);color:#c0392b;font-weight:700}
+.scenario-desc{font-size:12px;color:#888;font-style:italic;margin-top:4px}
+
+/* ===== NDRC ALERT ===== */
+.ndrc-alert{background:#fff5f5;border:1px solid #e74c3c;border-radius:5px;padding:10px 16px;margin:10px 0;display:none;font-size:13px;color:#82071e}
+.ndrc-alert strong{color:#c0392b}
+
+/* ===== SUMMARY TABLE ===== */
+.summary-box{background:#fff;border:1px solid #ddd;border-radius:5px;padding:12px;margin:10px 0;box-shadow:0 1px 2px rgba(0,0,0,.05);overflow-x:auto}
+.summary-table{width:100%;border-collapse:collapse;font-size:12px}
+.summary-table th{background:#f8f9fa;color:#2c3e50;padding:8px 10px;text-align:center;border-bottom:2px solid #ddd;font-weight:600}
+.summary-table td{padding:7px 10px;text-align:center;border-bottom:1px solid #eee;color:#333}
+.summary-table .st-country{text-align:left;font-weight:500;white-space:nowrap}
+.summary-table .st-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+.st-pos{color:#c0392b;font-weight:600}
+.st-neg{color:#27ae60;font-weight:600}
+
+/* ===== TABS ===== */
+.tabs{display:flex;gap:0;border-bottom:2px solid #ddd;margin:20px 0 0}
+.tab-btn{padding:10px 18px;background:transparent;border:none;color:#666;font-size:13px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;white-space:nowrap;font-weight:500}
+.tab-btn:hover{color:#333}
+.tab-btn.active{color:#DC143C;border-bottom-color:#DC143C;font-weight:600}
+.tab-content{display:none;background:#fff;border:1px solid #ddd;border-top:none;border-radius:0 0 5px 5px;padding:20px;min-height:400px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.tab-content.active{display:block}
+
+/* ===== CHART CONTAINERS ===== */
+.chart-row{display:grid;gap:16px;margin-bottom:16px}
+.chart-row.cols-2{grid-template-columns:1fr 1fr}
+.chart-row.cols-3{grid-template-columns:1fr 1fr 1fr}
+.chart-box{background:#fff;border:1px solid #eee;border-radius:5px;overflow:hidden;min-height:340px}
+
+/* ===== GEOPOLITICAL TABLE ===== */
+.geo-table{font-size:12px}
+.geo-table .geo-event-header{background:#1a252f;color:#ecf0f1;text-align:center;border-left:2px solid #DC143C;font-size:11px;padding:8px 6px}
+.geo-table .geo-sub-header{background:#2c3e50;color:#bdc3c7;font-size:10px;text-transform:uppercase;letter-spacing:.5px;padding:6px 8px}
+.geo-table tbody td{padding:8px 10px;font-size:12px;text-align:center;min-width:55px}
+
+/* ===== HORMUZ BOX ===== */
+.hormuz-box{background:linear-gradient(135deg,rgba(220,20,60,.04),rgba(207,34,46,.02));border:1px solid #e74c3c;border-radius:5px;padding:20px;margin-top:20px}
+.hormuz-box h3{color:#c0392b;margin-bottom:12px;font-size:15px}
+.hormuz-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.hormuz-card{background:#fff;border:1px solid #ddd;border-radius:5px;padding:14px}
+.hormuz-card h4{color:#DC143C;font-size:13px;margin-bottom:8px}
+.hormuz-card table{width:100%;font-size:12px}
+.hormuz-card td{padding:4px 6px;border-bottom:1px solid #f0f0f0;color:#333}
+
+/* ===== REFERENCES ===== */
+.ref-section{margin-bottom:20px}
+.ref-section h3{color:#2c3e50;font-size:14px;margin-bottom:10px;border-bottom:2px solid #DC143C;padding-bottom:5px}
+.ref-list{list-style:none;font-size:12px;color:#333}
+.ref-list li{padding:5px 0;border-bottom:1px solid #f0f0f0;margin-bottom:4px}
+.ref-list li b{color:#2c3e50}
+.method-box{background:#f8f9fa;border:1px solid #ddd;border-radius:5px;padding:16px;font-size:12px;color:#333;margin-top:12px}
+.method-box code{background:#e8ecef;padding:2px 6px;border-radius:3px;font-size:11px;color:#0550ae}
+
+/* ===== CMP TABLE ===== */
+.cmp-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:12px}
+.cmp-table th{background:#f8f9fa;color:#2c3e50;padding:6px 8px;text-align:center;border:1px solid #ddd;font-weight:600}
+.cmp-table td{padding:6px 8px;text-align:center;border:1px solid #eee;color:#333}
+.cmp-table td.highlight{background:rgba(220,20,60,.06);color:#c0392b;font-weight:600}
+
+/* ===== SOURCE NOTE ===== */
+.source-note{font-size:11px;color:#888;font-style:italic;margin-top:6px}
+
+/* ===== FOOTER ===== */
+.footer{text-align:center;padding:16px;font-size:12px;color:#888;border-top:1px solid #ddd;margin-top:20px}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:900px){
+  .chart-row.cols-2,.chart-row.cols-3{grid-template-columns:1fr}
+  .hormuz-grid{grid-template-columns:1fr}
+  .price-control{flex-direction:column;align-items:stretch}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <h1>🛢️ <span class="cn">China</span> Oil Shock Simulator</h1>
+  <div class="subtitle">Impulse-Response Functions — Iran-US Conflict Scenario Analysis &nbsp;|&nbsp; Calibrated from SVAR Literature (2005–2025)</div>
+</div>
+
+<!-- SIMULATOR -->
+<div class="simulator">
+  <div class="simulator-title">Simulador de Cenarios — Preco do Petroleo</div>
+  <div class="scenario-buttons">
+    <button class="scenario-btn" onclick="jumpTo(3)" title="Desaceleração global / excesso de oferta">Queda Moderada<br><small>$55/bbl</small></button>
+    <button class="scenario-btn" onclick="jumpTo(9)" title="Tensão geopolítica localizada">Moderado<br><small>$85/bbl</small></button>
+    <button class="scenario-btn" onclick="jumpTo(12)" title="Choque significativo de oferta">Significativo<br><small>$100/bbl</small></button>
+    <button class="scenario-btn highlight" onclick="jumpTo(17)" title="Pico ~$128/bbl (Mar/2022, invasão Rússia-Ucrânia)">Guerra da Ucrânia<br><small>$125/bbl</small></button>
+    <button class="scenario-btn" onclick="jumpTo(22)" title="Cenário de cauda / disrupção severa (Estreito de Hormuz)">Extremo<br><small>$150/bbl</small></button>
+  </div>
+  <div class="price-control">
+    <label>Brent ($/bbl):</label>
+    <input type="number" class="price-input" id="priceInput" value="70" min="40" max="160" step="5" onchange="onInputChange()">
+    <span class="price-unit">Base: $70/bbl</span>
+    <input type="range" class="price-slider" id="oilSlider" min="0" max="24" value="6" oninput="onSliderChange()">
+    <span class="shock-info" id="shockInfo" style="color:#27ae60">0.0%</span>
+  </div>
+  <div class="scenario-desc" id="scenarioDesc">Baseline — sem choque</div>
+</div>
+
+<!-- NDRC ALERT -->
+<div class="ndrc-alert" id="ndrcAlert">
+  <strong>⚠ Teto NDRC Ativado ($130/bbl):</strong> O mecanismo de preços administrados da China congela preços de combustíveis ao consumidor. Pass-through reduzido a ~50%. Custo fiscal absorvido por SOEs (Sinopec/PetroChina) e subsídios governamentais.
+</div>
+
+<!-- SUMMARY TABLE -->
+<div class="summary-box">
+  <table class="summary-table" id="summaryTable">
+    <thead>
+      <tr>
+        <th class="st-country">Canal</th>
+        <th>Pico Headline (pp)</th>
+        <th>Pico Core (pp)</th>
+        <th>Pico PPI (pp)</th>
+        <th>Q do Pico</th>
+        <th>Pico PIB (pp)</th>
+        <th>Pico Prod.Ind. (pp)</th>
+        <th>Pico Bal.Com. (%PIB)</th>
+        <th>Custo Oil ($B)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="st-country"><span class="st-dot" style="background:#DC143C"></span><b>China</b></td>
+        <td id="s_cpi">+0.00</td>
+        <td id="s_core">+0.00</td>
+        <td id="s_ppi">+0.00</td>
+        <td id="s_qpeak">—</td>
+        <td id="s_gdp">+0.00</td>
+        <td id="s_ip">+0.00</td>
+        <td id="s_trade">+0.00%</td>
+        <td id="s_bill">$0</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="openTab('inflation')">Inflação</button>
+  <button class="tab-btn" onclick="openTab('growth')">Crescimento</button>
+  <button class="tab-btn" onclick="openTab('trade')">Balança Comercial</button>
+  <button class="tab-btn" onclick="openTab('irfull')">IRF Completo</button>
+  <button class="tab-btn" onclick="openTab('geopolitical')">Geopolítico</button>
+  <button class="tab-btn" onclick="openTab('references')">Referências</button>
+</div>
+
+<!-- TAB: INFLATION -->
+<div class="tab-content active" id="tab-inflation">
+  <div class="chart-row cols-3">
+    <div class="chart-box" id="chartCPI"></div>
+    <div class="chart-box" id="chartCore"></div>
+    <div class="chart-box" id="chartPPI"></div>
+  </div>
+</div>
+
+<!-- TAB: GROWTH -->
+<div class="tab-content" id="tab-growth">
+  <div class="chart-row cols-2">
+    <div class="chart-box" id="chartGDP"></div>
+    <div class="chart-box" id="chartIP"></div>
+  </div>
+</div>
+
+<!-- TAB: TRADE -->
+<div class="tab-content" id="tab-trade">
+  <div class="chart-row cols-2">
+    <div class="chart-box" id="chartTrade"></div>
+    <div class="chart-box" id="chartBill"></div>
+  </div>
+</div>
+
+<!-- TAB: FULL IRF -->
+<div class="tab-content" id="tab-irfull">
+  <div class="chart-row cols-3">
+    <div class="chart-box" id="irfCPI"></div>
+    <div class="chart-box" id="irfPPI"></div>
+    <div class="chart-box" id="irfGDP"></div>
+  </div>
+  <div class="chart-row cols-3">
+    <div class="chart-box" id="irfIP"></div>
+    <div class="chart-box" id="irfTrade"></div>
+    <div class="chart-box" id="irfRMB"></div>
+  </div>
+</div>
+
+<!-- TAB: GEOPOLITICAL -->
+<div class="tab-content" id="tab-geopolitical">
+  <p style="font-size:13px;color:#555;margin-bottom:12px">
+    <b>Reação de mercado</b> — variação % do Brent e do câmbio RMB/USD (offshore, CNH) após cada evento (vs véspera). Dados de fechamento diário — não varia com o simulador de cenários.
+  </p>
+  <div class="summary-box" style="margin-bottom:20px;overflow-x:auto">
+    <table class="summary-table geo-table">
+      <thead>
+        <tr>
+          <th class="st-country" rowspan="2">Ativo</th>
+          <th colspan="3" class="geo-event-header">Invasão da Ucrânia<br><small style="font-weight:400;opacity:.7">24/Fev/2022</small></th>
+          <th colspan="3" class="geo-event-header">Ataque Hamas–Israel<br><small style="font-weight:400;opacity:.7">7/Out/2023</small></th>
+          <th colspan="3" class="geo-event-header">Houthis — Mar Vermelho<br><small style="font-weight:400;opacity:.7">19/Nov/2023</small></th>
+          <th colspan="3" class="geo-event-header">Escalada Israel–Líbano<br><small style="font-weight:400;opacity:.7">23/Set/2024</small></th>
+        </tr>
+        <tr>
+          <th class="geo-sub-header">D+0</th><th class="geo-sub-header">D+7</th><th class="geo-sub-header">D+14</th>
+          <th class="geo-sub-header">D+0</th><th class="geo-sub-header">D+7</th><th class="geo-sub-header">D+14</th>
+          <th class="geo-sub-header">D+0</th><th class="geo-sub-header">D+7</th><th class="geo-sub-header">D+14</th>
+          <th class="geo-sub-header">D+0</th><th class="geo-sub-header">D+7</th><th class="geo-sub-header">D+14</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="st-country"><span class="st-dot" style="background:#1a5276"></span><b>Brent</b></td>
+          <td class="st-pos">+0.8%</td><td class="st-pos">+20.1%</td><td class="st-pos">+18.0%</td>
+          <td class="st-pos">+3.8%</td><td class="st-pos">+5.9%</td><td class="st-pos">+7.2%</td>
+          <td class="st-pos">+1.5%</td><td class="st-pos">+3.0%</td><td class="st-pos">+0.3%</td>
+          <td class="">-0.0%</td><td class="st-pos">+9.1%</td><td class="st-pos">+10.8%</td>
+        </tr>
+        <tr>
+          <td class="st-country"><span class="st-dot" style="background:#DC143C"></span><b>USDCNH</b></td>
+          <td class="st-pos">+0.3%</td><td class="st-pos">+0.5%</td><td class="st-pos">+0.8%</td>
+          <td class="st-neg">-0.1%</td><td class="st-pos">+0.2%</td><td class="st-pos">+0.5%</td>
+          <td class="">+0.0%</td><td class="st-neg">-0.3%</td><td class="st-neg">-0.5%</td>
+          <td class="st-neg">-0.2%</td><td class="st-neg">-0.8%</td><td class="st-neg">-1.0%</td>
+        </tr>
+        <tr>
+          <td class="st-country"><span class="st-dot" style="background:#2980b9"></span><b>Shanghai Comp.</b></td>
+          <td class="st-neg">-1.7%</td><td class="st-neg">-3.2%</td><td class="st-neg">-4.1%</td>
+          <td class="st-neg">-0.4%</td><td class="st-neg">-0.9%</td><td class="st-neg">-1.5%</td>
+          <td class="st-neg">-0.3%</td><td class="st-neg">-0.8%</td><td class="st-neg">-0.5%</td>
+          <td class="st-pos">+0.6%</td><td class="st-pos">+8.1%</td><td class="st-pos">+12.4%</td>
+        </tr>
+        <tr>
+          <td class="st-country"><span class="st-dot" style="background:#f39c12"></span><b>Iron Ore (SGX)</b></td>
+          <td class="st-neg">-3.5%</td><td class="st-neg">-8.2%</td><td class="st-neg">-5.6%</td>
+          <td class="st-pos">+1.2%</td><td class="st-pos">+2.8%</td><td class="st-pos">+4.1%</td>
+          <td class="st-neg">-0.8%</td><td class="st-neg">-2.1%</td><td class="st-neg">-3.5%</td>
+          <td class="st-pos">+2.3%</td><td class="st-pos">+10.5%</td><td class="st-pos">+15.2%</td>
+        </tr>
+        <tr>
+          <td class="st-country"><span class="st-dot" style="background:#27ae60"></span><b>China 5Y CDS</b></td>
+          <td class="st-pos">+12bp</td><td class="st-pos">+18bp</td><td class="st-pos">+15bp</td>
+          <td class="st-pos">+3bp</td><td class="st-pos">+5bp</td><td class="st-pos">+8bp</td>
+          <td class="st-pos">+2bp</td><td class="st-pos">+4bp</td><td class="st-pos">+3bp</td>
+          <td class="st-neg">-1bp</td><td class="st-neg">-3bp</td><td class="st-neg">-5bp</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="source-note">Variações % relativas à véspera de cada evento. Fontes: Bloomberg, Reuters. USDCNH = CNH offshore; valores positivos = depreciação RMB. Shanghai Comp = SSE Composite Index. Última linha: spread CDS 5 anos soberano China.</p>
+  </div>
+
+  <!-- HORMUZ SPECIAL -->
+  <div class="hormuz-box">
+    <h3>🔴 Cenário Estreito de Hormuz — Estimativas Institucionais</h3>
+    <p style="font-size:12px;color:#555;margin-bottom:14px">
+      <b>Exposição da China:</b> ~40–45% das importações de crude (~4.5–5.0 mb/d de ~11 mb/d total) transitam pelo Estreito de Hormuz.
+      Fornecedores: Arábia Saudita (~1.7), Iraque (~1.2), Omã (~0.8), EAU (~0.5), Kuwait (~0.7), Irã (~1.0–1.2 mb/d).
+    </p>
+    <div class="hormuz-grid">
+      <div class="hormuz-card">
+        <h4>Estimativas de Preço por Fonte</h4>
+        <table>
+          <tr><td><b>Brookings (2012)</b></td><td>Fechamento total, 1 mês → Brent $150–200; $250+ se prolongado</td></tr>
+          <tr><td><b>RAND Corp. (2011)</b></td><td>Bloqueio parcial → +$30–50 premium; +$50–80 com perda supply Iran</td></tr>
+          <tr><td><b>Oxford IES (2019)</b></td><td>Fechamento total, 2 semanas → Spike $150+, depois moderação</td></tr>
+          <tr><td><b>IMF (2019) WEO</b></td><td>Perda 2 mb/d → GDP global −0.5%; oil $120–140</td></tr>
+          <tr><td><b>CSIS (2023)</b></td><td>Fechamento + Iran loss (~4 mb/d) → $120–200</td></tr>
+          <tr><td><b>JP Morgan (2024)</b></td><td>Full blockade → $150+</td></tr>
+        </table>
+      </div>
+      <div class="hormuz-card">
+        <h4>Impacto Modelado na China</h4>
+        <table>
+          <tr><td><b>Zhang et al. (2019)</b></td><td>Disrupção 3 mb/d M.E. → GDP −0.7 a −1.2%; CPI +1.5 a +2.5 pp</td></tr>
+          <tr><td><b>World Bank (2022)</b></td><td>Oil $150 → GDP −0.8 a −1.0 pp</td></tr>
+          <tr><td><b>IMF (2022)</b></td><td>+$25/bbl sustentado → GDP −0.3 a −0.5 pp; CPI +0.4 a +0.7 pp</td></tr>
+          <tr><td><b>Chen & Lv (2015)</b></td><td>10% shock → IP −0.3 a −0.5% em 6 meses</td></tr>
+          <tr><td colspan="2" style="color:#888;font-size:11px;padding-top:8px"><em>Mitigantes: Teto NDRC $130, SPR (50–55 dias), SOE absorption, coal buffer 55%, crude russo/iraniano c/ desconto</em></td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: REFERENCES -->
+<div class="tab-content" id="tab-references">
+  <p style="color:#555;font-style:italic;margin-bottom:20px;font-size:13px">
+    <b>Nota metodológica:</b> Os parâmetros deste simulador são calibrados a partir da
+    literatura acadêmica e estudos institucionais listados abaixo. Não são estimados
+    diretamente via modelos econométricos com dados primários. As elasticidades representam
+    estimativas centrais da literatura (2005–2025), com ajustes para a estrutura econômica
+    chinesa atual (menor intensidade energética, maior share de serviços, mecanismo NDRC).
+  </p>
+
+  <div class="ref-section">
+    <h3>VAR/SVAR — Oil Price Pass-Through (China)</h3>
+    <ul class="ref-list">
+      <li><b>Zhao, Zhang, Wang & Xu (2016)</b> — "Effects of oil price shocks on output and inflation in China", <i>Energy Economics</i>, 53. TVP-VAR com volatilidade estocástica. 1 s.d. oil shock → +0.10–0.15pp CPI (pico Q2–Q3); GDP −0.05 a −0.10pp.</li>
+      <li><b>Chen, Huang & Ma (2017)</b> — "Effects of oil price shocks on China's inflation: A Bayesian approach", <i>Applied Economics</i>. BVAR. CPI pass-through: 0.01–0.03pp por 1% oil; PPI: 0.05–0.08pp por 1% oil.</li>
+      <li><b>Li & Zhao (2020)</b> — "Oil price shocks and Chinese economy revisited: New evidence from SVAR model with sign restrictions", <i>Int. Review of Econ. & Finance</i>. Sign restrictions; supply shocks → GDP negativo, demand shocks → GDP positivo. Confirma Kilian decomposition para China.</li>
+      <li><b>Zhang et al. (2022)</b> — "Revisiting the Dynamic Response of Chinese Price Level to Crude Oil Price Shocks Based on a Network Analysis Method", <i>Frontiers in Env. Science</i>. Amostra 2011–2020. CPI: impacto indireto via PPI; PPI resposta direta peak M2. Import prices: coef. ~0.69.</li>
+      <li><b>Tang, Wu & Zhang (2010)</b> — "Oil price shocks and their short/long-term effects on the Chinese economy", <i>Energy Economics</i>, 32. Pico GDP Q4–Q5; dissipa em 8–10 trimestres.</li>
+      <li><b>Du, He & Wei (2010)</b> — "The relationship between oil price shocks and China's macro-economy", <i>Energy Policy</i>, 38(8). SVAR 1995–2008. 10% oil → +0.05pp CPI; pico 4–5 meses.</li>
+      <li><b>Cunado & Perez de Gracia (2015)</b> — "Oil price shocks and macroeconomic outcomes: asymmetries?", <i>Energy Policy</i>, 85. Efeitos assimétricos: altas > quedas.</li>
+    </ul>
+  </div>
+
+  <div class="ref-section">
+    <h3>Framework Kilian & Metodologia Geral</h3>
+    <ul class="ref-list">
+      <li><b>Kilian (2009)</b> — "Not All Oil Price Shocks Are Alike", <i>AER</i>, 99(3). Decomposição: supply, demand, precautionary.</li>
+      <li><b>Kilian & Zhou (2023)</b> — "Oil Price Shocks and Inflation", <i>Dallas Fed WP 2312</i>. Atualização do framework com dados até 2022.</li>
+      <li><b>Blanchard & Galí (2007)</b> — Declínio secular do pass-through energético globalmente.</li>
+      <li><b>Caldara et al. (2024)</b> — "Geopolitical Oil Price Risk and Economic Fluctuations", <i>Dallas Fed WP 2403</i>. Risco geopolítico como driver de preço.</li>
+      <li><b>Baba & Lee (2022)</b> — "Second-Round Effects of Oil Price Shocks", <i>IMF WP/22/173</i>.</li>
+      <li><b>Choi et al. (2017)</b> — "Oil Prices and Inflation Dynamics: Evidence from Advanced and Developing Economies", <i>IMF WP/17/196</i>.</li>
+    </ul>
+  </div>
+
+  <div class="ref-section">
+    <h3>Cenário Hormuz & Geopolítica</h3>
+    <ul class="ref-list">
+      <li><b>Brookings (Pollack et al., 2012)</b> — Fechamento total Hormuz: Brent $150–200.</li>
+      <li><b>RAND Corporation (2011)</b> — Bloqueio parcial: +$30–50 premium.</li>
+      <li><b>IMF WEO (2019, 2022)</b> — Disrupção supply 2 mb/d: GDP global −0.5%.</li>
+      <li><b>CSIS (2023)</b> — Fechamento + Iran loss: $120–200.</li>
+      <li><b>Zhang et al. (2019)</b>, <i>Energy Policy</i> — Disrupção 3 mb/d M.E.: GDP China −0.7 a −1.2%.</li>
+      <li><b>World Bank Commodity Outlook (2022, 2025)</b> — Oil $150: GDP China −0.8 a −1.0 pp.</li>
+    </ul>
+  </div>
+
+  <div class="ref-section">
+    <h3>Fontes de Dados</h3>
+    <ul class="ref-list">
+      <li><b>NBS China</b> — CPI, PPI, GDP, Industrial Production (data.stats.gov.cn)</li>
+      <li><b>FRED (St. Louis Fed)</b> — Brent spot, RMB/USD, harmonized CPI</li>
+      <li><b>World Bank Pink Sheet</b> — Commodity prices mensais</li>
+      <li><b>IEA</b> — Oil Market Report, World Energy Outlook, China Energy Outlook</li>
+      <li><b>EIA</b> — Short-Term Energy Outlook, Country Analysis: China</li>
+    </ul>
+  </div>
+
+  <div class="ref-section">
+    <h3>Nota Metodológica</h3>
+    <div class="method-box">
+      <p><b>Modelo:</b> Impulse-Response Functions calibradas a partir de estimativas SVAR da literatura (2005–2025). Simulação, não estimação direta.</p>
+      <p style="margin-top:8px"><b>IRF Shape:</b> Gamma-like distribution — <code>impact(q) = A × (q/p × e^(1−q/p))^n</code> onde p = trimestre do pico, n = sharpness. Garante pico exato em Q=p e decay gradual.</p>
+      <p style="margin-top:8px"><b>Balança Comercial:</b> Shape persistente. Deterioração rápida Q1–Q2, recuperação parcial via ajuste de volume e substituição de fornecedores, mas efeito residual ~35% enquanto preços permanecerem elevados.</p>
+      <p style="margin-top:8px"><b>Não-linearidade NDRC:</b> Pass-through completo para oil &lt;$80/bbl. Parcial (~85%) entre $80–130. Acima de $130, reduzido a ~50% (teto NDRC). Piso em $40/bbl.</p>
+      <p style="margin-top:8px"><b>Bandas de confiança:</b> ±30% (68% CI), ±60% (90% CI). Refletem dispersão entre estudos.</p>
+      <p style="margin-top:8px"><b>Ajustes 2025:</b> Parâmetros base da literatura (tipicamente amostras 2001–2018) são mantidos como estimativa central, reconhecendo que: (i) oil intensity do GDP caiu ~25% desde 2010 (IEA), (ii) serviços = ~55% do GDP, (iii) mas dependência de importação subiu para ~73%. Na margem, esses efeitos se compensam parcialmente.</p>
+    </div>
+  </div>
+
+  <div class="ref-section">
+    <h3>Comparação China vs Outros Emergentes</h3>
+    <table class="cmp-table">
+      <thead>
+        <tr><th>Característica</th><th class="highlight">China</th><th>Brasil</th><th>Chile</th><th>México</th><th>Colômbia</th><th>Áfr. do Sul</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Oil net importer?</td><td class="highlight">Sim (73%)</td><td>~Neutro</td><td>Sim (100%)</td><td>Exportador</td><td>Exportador</td><td>Sim (70%+)</td></tr>
+        <tr><td>Preços regulados?</td><td class="highlight">SIM (NDRC)</td><td>Parcial</td><td>Livre</td><td>Livre</td><td>Livre</td><td>Livre</td></tr>
+        <tr><td>SPR significativa?</td><td class="highlight">SIM (500M+ bbl)</td><td>Não</td><td>Não</td><td>Limitada</td><td>Não</td><td>Não</td></tr>
+        <tr><td>CPI pass-through</td><td class="highlight">Baixo (0.01–0.02)</td><td>Médio</td><td>Alto</td><td>Médio-alto</td><td>Alto</td><td>Alto</td></tr>
+        <tr><td>Coal buffer?</td><td class="highlight">SIM (55% mix)</td><td>Não</td><td>Não</td><td>Não</td><td>Não</td><td>Parcial</td></tr>
+        <tr><td>SOE absorbers?</td><td class="highlight">SIM (Sinopec/CNPC)</td><td>Sim (Petrobras)</td><td>Não</td><td>Sim (Pemex)</td><td>Sim (Ecopetrol)</td><td>Não</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="footer">
+  China Oil Shock Simulator v1.0 &nbsp;|&nbsp; Calibrated from SVAR Literature &nbsp;|&nbsp; For research purposes only &nbsp;|&nbsp; Eric Almeida, Março 2026
+</div>
+
+<script>
+/* ===== CONFIG ===== */
+const PRICES = [];
+for(let p=40;p<=160;p+=5) PRICES.push(p);
+const BASELINE = 70;
+const NQ = 13; // 0..12 quarters
+const QUARTERS = Array.from({length:NQ},(_,i)=>i);
+const Q_LABELS = QUARTERS.map(q=>'Q'+q);
+
+const PRESETS = {
+  3:  {name:'Queda Moderada', desc:'Desaceleração global / excesso de oferta'},
+  6:  {name:'Baseline', desc:'Sem choque — preço base'},
+  9:  {name:'Moderado', desc:'Tensão geopolítica localizada'},
+  12: {name:'Significativo', desc:'Choque significativo de oferta'},
+  17: {name:'Guerra da Ucrânia', desc:'Pico ~$128/bbl (Mar/2022, invasão Rússia-Ucrânia)'},
+  22: {name:'Extremo', desc:'Cenário de cauda / disrupção severa (Estreito de Hormuz)'}
+};
+
+/* ===================================================================
+   ECONOMIC MODEL — calibrated from SVAR literature
+
+   Parameters per 10% oil price increase (supply shock):
+   - CPI headline: +0.20pp, peak Q2  (Zhao et al. 2016: 0.10-0.15; GS/MS 2025: 0.25; média ~0.20)
+   - CPI core:     +0.05pp, peak Q3  (inferred: headline minus energy weights)
+   - PPI:          +0.65pp, peak Q2  (Chen et al. 2017: range 0.50-0.80; média 0.65)
+   - GDP:          -0.10pp, peak Q3  (Tang et al. 2010, Zhao et al. 2016, GS 2025: -0.10)
+   - IP:           -0.17pp, peak Q2  (more responsive than aggregate GDP)
+   - Trade bal:    -0.20%PIB, persistent (GS 2025: C/A -0.20% GDP per 10%)
+   - RMB/USD:      +0.50% deprec, peak Q2 (Huang & Guo 2007: range 0.3-0.8)
+
+   IRF shape: gamma-like with correct peak at peak_q, gradual decay.
+   NDRC non-linearity: regime-dependent pass-through.
+   =================================================================== */
+
+const PARAMS = {
+  cpi:   {amp:0.20,  peak_q:2, sign:1,  label:'CPI Headline', unit:'pp'},
+  core:  {amp:0.05,  peak_q:3, sign:1,  label:'CPI Core',     unit:'pp'},
+  ppi:   {amp:0.65,  peak_q:2, sign:1,  label:'PPI',          unit:'pp'},
+  gdp:   {amp:0.10,  peak_q:3, sign:-1, label:'GDP Real',     unit:'pp'},
+  ip:    {amp:0.17,  peak_q:2, sign:-1, label:'Prod.Ind.',    unit:'pp'},
+  trade: {amp:0.20,  peak_q:2, sign:-1, label:'Bal. Com.',    unit:'% PIB'},
+  rmb:   {amp:0.50,  peak_q:2, sign:1,  label:'RMB Deprec.',  unit:'%'}
+};
+
+/**
+ * Gamma-like IRF shape that CORRECTLY peaks at peak_q.
+ * Formula: shape(q) = (q/p * e^(1-q/p))^n
+ * - Peaks exactly at q=p (shape=1)
+ * - n controls decay speed (higher = sharper peak, faster decay)
+ * - n=2.5 gives ~45% at 2*peak, ~8% at 3*peak → dissipates by Q10-12
+ */
+function gammaIRF(q, peak_q, amplitude) {
+  if(q <= 0) return 0;
+  const n = 2.5;
+  const ratio = q / peak_q;
+  const shape = Math.pow(ratio * Math.exp(1 - ratio), n);
+  return amplitude * shape;
+}
+
+/**
+ * Trade balance: persistent shock (not gamma).
+ * Rapid deterioration to peak Q2, partial recovery as
+ * volumes adjust (SPR drawdown, supplier substitution),
+ * but residual ~35% persists while prices stay elevated.
+ */
+function tradeIRF(q, amplitude) {
+  if(q <= 0) return 0;
+  const peak_q = 2;
+  const residual = 0.35;
+  if(q <= peak_q) {
+    return amplitude * Math.pow(q / peak_q, 1.5);
+  }
+  const decay = Math.exp(-0.25 * (q - peak_q));
+  return amplitude * (residual + (1 - residual) * decay);
+}
+
+/**
+ * Oil bill quarterly profile ($B/quarter).
+ * Q0: lag (contracts). Q1: SPR absorbs ~15%.
+ * Q2: full hit. Q3+: gradual adjustment.
+ * Long-run ~70% of initial as volumes adjust.
+ */
+function oilBillProfile(annualBill) {
+  const qBase = annualBill / 4;
+  return QUARTERS.map(q => {
+    if(q === 0) return 0;
+    if(q === 1) return qBase * 0.85;
+    if(q === 2) return qBase * 1.0;
+    if(q === 3) return qBase * 0.95;
+    if(q <= 5) return qBase * (0.90 - 0.05*(q-3));
+    return qBase * 0.70;
+  });
+}
+
+function calcPassthrough(oilPrice) {
+  if(oilPrice <= 40) return 0;
+  if(oilPrice <= 80) return 1.0;
+  if(oilPrice <= 130) return 0.85;
+  return 0.50;
+}
+
+function calculateScenario(oilPrice) {
+  const pctChange = ((oilPrice - BASELINE) / BASELINE) * 100;
+  const shock10pct = pctChange / 10;
+  const pt = calcPassthrough(oilPrice);
+  const results = {};
+
+  for(const [key, p] of Object.entries(PARAMS)) {
+    if(key === 'trade') continue;
+    const effectivePt = (key === 'rmb') ? 1.0 : pt;
+    const baseAmp = p.amp * shock10pct * effectivePt * p.sign;
+    const irf = QUARTERS.map(q => gammaIRF(q, p.peak_q, baseAmp));
+    const absMax = Math.max(...irf.map(Math.abs));
+    const peakQ = irf.findIndex(v => Math.abs(v) === absMax);
+    results[key] = {irf, peakVal: irf[peakQ]||0, peakQ, param: p};
+  }
+
+  // Trade: persistent shape, not NDRC-dampened
+  const tradeAmp = PARAMS.trade.amp * shock10pct * PARAMS.trade.sign;
+  const tradeIrf = QUARTERS.map(q => tradeIRF(q, tradeAmp));
+  const tradeAbsMax = Math.max(...tradeIrf.map(Math.abs));
+  const tradePeakQ = tradeIrf.findIndex(v => Math.abs(v) === tradeAbsMax);
+  results.trade = {irf: tradeIrf, peakVal: tradeIrf[tradePeakQ]||0, peakQ: tradePeakQ, param: PARAMS.trade};
+
+  // Oil bill
+  const annualBill = 11e6 * 365 * (oilPrice - BASELINE) / 1e9;
+  results.bill = annualBill;
+  results.billProfile = oilBillProfile(annualBill);
+
+  return results;
+}
+
+/* ===== PLOTLY (LIGHT THEME) ===== */
+const LO = {
+  paper_bgcolor:'#fff', plot_bgcolor:'#fff',
+  font:{color:'#333', family:'Segoe UI, sans-serif', size:11},
+  margin:{l:55,r:20,t:40,b:45},
+  xaxis:{gridcolor:'#eee',zerolinecolor:'#ccc',title:'Trimestres após choque'},
+  yaxis:{gridcolor:'#eee',zerolinecolor:'#ccc'},
+  legend:{bgcolor:'transparent',font:{size:10}},
+  hovermode:'x unified'
+};
+function makeLayout(title, yTitle) {
+  return {
+    ...LO,
+    title:{text:title, font:{size:13, color:'#2c3e50'}},
+    xaxis:{...LO.xaxis},
+    yaxis:{...LO.yaxis, title:yTitle}
+  };
+}
+
+function makeBands(irf) {
+  const a60 = irf.map(v => Math.abs(v)*0.6);
+  const a30 = irf.map(v => Math.abs(v)*0.3);
+  return {
+    u90: irf.map((v,i)=>v+a60[i]), l90: irf.map((v,i)=>v-a60[i]),
+    u68: irf.map((v,i)=>v+a30[i]), l68: irf.map((v,i)=>v-a30[i])
+  };
+}
+
+function irfTraces(irf, label, color) {
+  const b = makeBands(irf);
+  const rgb = color.match(/\d+/g);
+  const bL = rgb ? `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0.06)` : 'rgba(0,0,0,0.06)';
+  const bM = rgb ? `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0.14)` : 'rgba(0,0,0,0.14)';
+  return [
+    {x:Q_LABELS,y:b.u90,mode:'lines',line:{width:0},showlegend:false,hoverinfo:'skip'},
+    {x:Q_LABELS,y:b.l90,mode:'lines',line:{width:0},fill:'tonexty',fillcolor:bL,name:'90% CI',showlegend:true,hoverinfo:'skip'},
+    {x:Q_LABELS,y:b.u68,mode:'lines',line:{width:0},showlegend:false,hoverinfo:'skip'},
+    {x:Q_LABELS,y:b.l68,mode:'lines',line:{width:0},fill:'tonexty',fillcolor:bM,name:'68% CI',showlegend:true,hoverinfo:'skip'},
+    {x:Q_LABELS,y:irf,mode:'lines+markers',line:{color:color,width:2.5},marker:{size:5},name:label},
+    {x:Q_LABELS,y:Q_LABELS.map(()=>0),mode:'lines',line:{color:'rgba(0,0,0,0.15)',width:1,dash:'dot'},showlegend:false,hoverinfo:'skip'}
+  ];
+}
+
+/* ===== RENDERING ===== */
+let R = null; // current results
+
+function renderAll(r) {
+  R = r;
+  const tab = document.querySelector('.tab-content.active')?.id;
+  if(tab==='tab-inflation'||!tab) renderInflation(r);
+  if(tab==='tab-growth') renderGrowth(r);
+  if(tab==='tab-trade') renderTrade(r);
+  if(tab==='tab-irfull') renderIRFull(r);
+}
+
+function renderInflation(r) {
+  Plotly.react('chartCPI', irfTraces(r.cpi.irf,'CPI Headline','rgb(220,20,60)'), makeLayout('CPI Headline — IRF','pp'),{responsive:true});
+  Plotly.react('chartCore', irfTraces(r.core.irf,'CPI Core','rgb(154,103,0)'), makeLayout('CPI Core — IRF','pp'),{responsive:true});
+  Plotly.react('chartPPI', irfTraces(r.ppi.irf,'PPI','rgb(231,76,60)'), makeLayout('PPI — IRF','pp'),{responsive:true});
+}
+
+function renderGrowth(r) {
+  Plotly.react('chartGDP', irfTraces(r.gdp.irf,'GDP Real','rgb(220,20,60)'), makeLayout('GDP Real — IRF','pp'),{responsive:true});
+  Plotly.react('chartIP', irfTraces(r.ip.irf,'Prod. Industrial','rgb(41,128,185)'), makeLayout('Produção Industrial — IRF','pp'),{responsive:true});
+}
+
+function renderTrade(r) {
+  Plotly.react('chartTrade', irfTraces(r.trade.irf,'Balança Comercial','rgb(192,57,43)'), makeLayout('Balança Comercial — IRF (persistente)','% PIB'),{responsive:true});
+
+  const pos = r.bill > 0;
+  const lineC = pos ? '#c0392b' : '#27ae60';
+  const yr1Total = r.billProfile.slice(1,5).reduce((a,b)=>a+b,0);
+  const lo = makeLayout('Custo Adicional de Oil — Perfil Trimestral','$B / trimestre');
+  lo.annotations = [{
+    x:'Q4', y:r.billProfile[4],
+    text:'Total ano 1: '+(yr1Total>=0?'+':'')+('$'+yr1Total.toFixed(0)+'B'),
+    showarrow:true, arrowhead:2, ax:50, ay:-35,
+    font:{size:11,color:lineC,weight:'bold'},
+    bgcolor:'#fff',bordercolor:lineC,borderwidth:1,borderpad:4
+  }];
+  Plotly.react('chartBill',[
+    {x:Q_LABELS,y:r.billProfile,type:'scatter',mode:'lines',fill:'tozeroy',
+     fillcolor:pos?'rgba(192,57,43,0.1)':'rgba(39,174,96,0.1)',
+     line:{color:lineC,width:2.5,shape:'spline'},name:pos?'Custo Adicional':'Economia'},
+    {x:Q_LABELS,y:r.billProfile,type:'bar',marker:{color:pos?'rgba(192,57,43,0.5)':'rgba(39,174,96,0.5)'},
+     name:'$B/trim',hovertemplate:'%{y:.1f} $B<extra></extra>'},
+    {x:Q_LABELS,y:Q_LABELS.map(()=>0),mode:'lines',line:{color:'rgba(0,0,0,0.15)',width:1,dash:'dot'},showlegend:false,hoverinfo:'skip'}
+  ], lo, {responsive:true});
+}
+
+function renderIRFull(r) {
+  Plotly.react('irfCPI', irfTraces(r.cpi.irf,'CPI Headline','rgb(220,20,60)'), makeLayout('CPI Headline','pp'),{responsive:true});
+  Plotly.react('irfPPI', irfTraces(r.ppi.irf,'PPI','rgb(231,76,60)'), makeLayout('PPI','pp'),{responsive:true});
+  Plotly.react('irfGDP', irfTraces(r.gdp.irf,'GDP Real','rgb(192,57,43)'), makeLayout('GDP Real','pp'),{responsive:true});
+  Plotly.react('irfIP', irfTraces(r.ip.irf,'Prod. Industrial','rgb(41,128,185)'), makeLayout('Prod. Industrial','pp'),{responsive:true});
+  Plotly.react('irfTrade', irfTraces(r.trade.irf,'Bal. Com.','rgb(154,103,0)'), makeLayout('Balança Comercial','% PIB'),{responsive:true});
+  Plotly.react('irfRMB', irfTraces(r.rmb.irf,'RMB/USD Deprec.','rgb(39,174,96)'), makeLayout('RMB/USD Depreciação','%'),{responsive:true});
+}
+
+/* ===== SUMMARY ===== */
+function updateSummary(r, price) {
+  const f = (v,d=2) => (v>=0?'+':'')+v.toFixed(d);
+  const cl = v => v>0.001?'st-pos':v<-0.001?'st-neg':'';
+
+  const el = id => document.getElementById(id);
+  el('s_cpi').textContent = f(r.cpi.peakVal); el('s_cpi').className = cl(r.cpi.peakVal);
+  el('s_core').textContent = f(r.core.peakVal); el('s_core').className = cl(r.core.peakVal);
+  el('s_ppi').textContent = f(r.ppi.peakVal); el('s_ppi').className = cl(r.ppi.peakVal);
+  el('s_qpeak').textContent = price===BASELINE ? '—' : 'Q'+r.cpi.peakQ;
+  el('s_gdp').textContent = f(r.gdp.peakVal); el('s_gdp').className = cl(r.gdp.peakVal);
+  el('s_ip').textContent = f(r.ip.peakVal); el('s_ip').className = cl(r.ip.peakVal);
+  el('s_trade').textContent = f(r.trade.peakVal)+'%'; el('s_trade').className = cl(r.trade.peakVal);
+
+  const yr1Bill = r.billProfile.slice(1,5).reduce((a,b)=>a+b,0);
+  const billSign = yr1Bill>=0?'+$':'−$';
+  el('s_bill').textContent = billSign + Math.abs(yr1Bill).toFixed(0)+'B';
+  el('s_bill').className = yr1Bill>0?'st-pos':yr1Bill<0?'st-neg':'';
+
+  document.getElementById('ndrcAlert').style.display = price>130?'block':'none';
+}
+
+/* ===== CONTROLS ===== */
+function selectByIdx(idx) {
+  const slider = document.getElementById('oilSlider');
+  const input = document.getElementById('priceInput');
+  slider.value = idx;
+  const price = PRICES[idx];
+  input.value = price;
+
+  const pct = ((price - BASELINE)/BASELINE*100);
+  const info = document.getElementById('shockInfo');
+  info.textContent = (pct>=0?'+':'')+pct.toFixed(1)+'%';
+  info.style.color = pct>0?'#c0392b':pct<0?'#27ae60':'#666';
+
+  // Scenario desc
+  const desc = document.getElementById('scenarioDesc');
+  if(PRESETS[idx]) desc.textContent = PRESETS[idx].desc;
+  else if(pct===0) desc.textContent = 'Baseline — sem choque';
+  else if(pct<0) desc.textContent = 'Cenário de queda no preço';
+  else if(pct<=30) desc.textContent = 'Choque moderado';
+  else if(pct<=60) desc.textContent = 'Choque significativo';
+  else desc.textContent = 'Choque severo';
+
+  // Active buttons
+  document.querySelectorAll('.scenario-btn').forEach(b=>b.classList.remove('active'));
+  const presetKeys = [3,9,12,17,22];
+  const pi = presetKeys.indexOf(idx);
+  if(pi>=0) document.querySelectorAll('.scenario-btn')[pi]?.classList.add('active');
+
+  const results = calculateScenario(price);
+  updateSummary(results, price);
+  renderAll(results);
+}
+
+function onSliderChange() { selectByIdx(+document.getElementById('oilSlider').value); }
+function onInputChange() {
+  let v = +document.getElementById('priceInput').value;
+  v = Math.max(40,Math.min(160,Math.round(v/5)*5));
+  const idx = (v-40)/5;
+  selectByIdx(idx);
+}
+function jumpTo(idx) { selectByIdx(idx); }
+
+function openTab(name) {
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  const tabs = ['inflation','growth','trade','irfull','geopolitical','references'];
+  document.querySelectorAll('.tab-btn')[tabs.indexOf(name)]?.classList.add('active');
+  if(R) setTimeout(()=>{
+    if(name==='inflation') renderInflation(R);
+    if(name==='growth') renderGrowth(R);
+    if(name==='trade') renderTrade(R);
+    if(name==='irfull') renderIRFull(R);
+  },50);
+}
+
+/* ===== INIT ===== */
+selectByIdx(6);
+</script>
+</body>
+</html>
